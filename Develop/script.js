@@ -1,23 +1,70 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
 $(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+  let saveBtn = $(".saveBtn");
+  let stamp9am = $("#9AM");
+  let stamp10am = $("#10AM");
+  let stamp11am = $("#11AM");
+  let stamp12pm = $("#12PM");
+  let stamp1pm = $("#1PM");
+  let stamp2pm = $("#2PM");
+  let stamp3pm = $("#3PM");
+  let stamp4pm = $("#4PM");
+  let stamp5pm = $("#5PM");
+
+  let stampELArray = [
+    stamp9am,
+    stamp10am,
+    stamp11am,
+    stamp12pm,
+    stamp1pm,
+    stamp2pm,
+    stamp3pm,
+    stamp4pm,
+    stamp5pm,
+  ];
+
+  function handleFormSubmit(event) {
+    event.preventDefault();
+
+    let btnClicked = $(event.currentTarget);
+
+    let targetText = btnClicked.siblings("textarea");
+
+    let targetTimeBlock = targetText.data("time");
+
+    localStorage.setItem("time block " + targetTimeBlock, targetText.val());
+  }
+
+  saveBtn.on("click", handleFormSubmit);
+
+  function updateTime() {
+    let today = dayjs();
+
+    
+    $("#currentDay").text(today.format("dddd, MMMM DD YYYY, h:mm.ss"));
+
+    let now = dayjs().hour();
+    console.log (typeof now)
+    for (let i = 0; i < stampELArray.length; i++) {
+      stampELArray[i].removeClass("future past present");
+
+      if (now > stampELArray[i].data("time")) {
+        stampELArray[i].addClass("past");
+      } else if (now == stampELArray[i].attr("data-time")) {
+        stampELArray[i].addClass("present");
+      } else {
+        stampELArray[i].addClass("future");
+      }
+    }
+  }
+
+  renderLastRegistered();
+  updateTime();
+  setInterval(updateTime, 100);
+
+  
+  function renderLastRegistered() {
+    for (let el of stampELArray) {
+      el.val(localStorage.getItem("time block " + el.data("time")));
+    }
+  }
 });
